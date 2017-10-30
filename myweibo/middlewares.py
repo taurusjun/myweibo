@@ -5,7 +5,12 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
+import random
+from Cookie import SimpleCookie
+
 from scrapy import signals
+from cookies import cookies
+from user_agents import agents
 
 
 class MyweiboSpiderMiddleware(object):
@@ -54,3 +59,36 @@ class MyweiboSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class UserAgentMiddleware(object):
+    """ 换User-Agent """
+
+    def process_request(self, request, spider):
+        agent = random.choice(agents)
+        request.headers["User-Agent"] = agent
+
+
+class CookiesMiddleware(object):
+    """ 换Cookie """
+
+    def process_request(self, request, spider):
+        url = request.url
+        cookie = random.choice(cookies)
+        request.cookies = cookie
+        # if url.find("picAll")==-1:
+        #     request.cookies = cookie
+        # else:
+        #     request.cookies.update(cookie)
+        # request.cookies.update(cookie)
+        # cStr = "_T_WM=1d066e8fd90dd2f475cdfa189ff48b80; SUB=_2A25094CJDeThGeBN41YY8i3JzTWIHXVUGyDBrDV6PUJbkdBeLW_nkW2cHl_ZlVIfuU2cpY9M7kXsez-gcg..; SUHB=0P1cckQgWWlNiF; SCF=AmukTVKs-OXwSD7l8C_LEm4B_UVL-wDVKel6QBHwiQ2Oxxb6MRsGgl8GPW5WXyywFbdC-4m1uStGUD6aQMSv2uw.; SSOLoginState=1509159129; M_WEIBOCN_PARAMS=featurecode%3D20000320%26luicode%3D20000174%26lfid%3Dhotword"
+        # pCookie=self.parseStrToCookies(cStr)
+        # request.cookies = pCookie
+
+    def parseStrToCookies(self,cookieStr):
+        SC = SimpleCookie()
+        SC.load(cookieStr)
+        cookies = {}
+        for key, morsel in SC.items():
+            cookies[key] = morsel.value
+        return cookies
