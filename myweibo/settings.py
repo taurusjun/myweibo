@@ -70,7 +70,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'myweibo.pipelines.MyweiboPipeline': 300,
-    'scrapy.pipelines.images.ImagesPipeline': 400,
+    'myweibo.pipelines.MyImagesPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -95,3 +95,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 IMAGES_STORE='/tmp/sinaimg'
+# 绕过robots策略
+ROBOTSTXT_OBEY = False
+# 限制爬取速度
+DOWNLOAD_DELAY = 1

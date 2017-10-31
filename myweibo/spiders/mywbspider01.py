@@ -6,6 +6,8 @@ import re
 import scrapy
 from Cookie import SimpleCookie
 
+from scrapy import Request
+
 from myweibo.items import MyweiboItem
 
 
@@ -16,9 +18,17 @@ class Mywbspider01Spider(scrapy.Spider):
     # myid:6384923569
     # 2849479587
     # url_tweets = "http://weibo.cn/%s/profile?filter=1&page=1" % ID
-    start_urls = ['https://weibo.cn/2849479587?page=1']
+    host='https://weibo.cn'
+    # start_urls = ['2849479587?page=1']
+    weibo_ids=['2849479587','1762594520']
 
-    def parse(self, response):
+    def start_requests(self):
+        while self.weibo_ids.__len__():
+            wid = self.weibo_ids.pop()
+            weiboURL="https://weibo.cn/%s?page=1" % wid
+            yield Request(url=weiboURL, meta={"ID": wid}, callback=self.parse0)
+
+    def parse0(self, response):
         myweiboItems = self.parseCttContents(response)
         for itm in myweiboItems:
             allPicURL=itm['allPicsURL']
@@ -27,6 +37,10 @@ class Mywbspider01Spider(scrapy.Spider):
             else:
                 yield itm
             yield itm
+        url_next = response.xpath(
+            u'body/div[@class="pa" and @id="pagelist"]/form/div/a[text()="\u4e0b\u9875"]/@href').extract_first()
+        if url_next:
+            yield Request(url=self.host + url_next, meta={"ID": response.meta["ID"]}, callback=self.parse0)
         # return self.parseCttContents(response)
 
 
@@ -38,6 +52,7 @@ class Mywbspider01Spider(scrapy.Spider):
 
 
     def parseCttContents(self, response):
+        userid = response.meta["ID"]
         pathExp = '//div[@class="c"][not(descendant::span[@class="kt"]) and (descendant::span[@class="ctt"])]'
         # '//div[@class="c"]/*[descendant::span[@class="ctt"]]'
         cttHtmls = response.xpath(pathExp)
@@ -77,6 +92,7 @@ class Mywbspider01Spider(scrapy.Spider):
             print "id: %s\ntext: %s\ncontent: %s\npics: %s \nlike: %s \ncomment: %s \nrepost: %s \ntag: %s" % (id,txtContent,wbContent,allPicsURL,like,comment,repost,tag)
             print "\n"
             myweiboItem = MyweiboItem()
+            myweiboItem['userid']=userid
             myweiboItem['id'] = id
             myweiboItem['textContent'] = txtContent
             myweiboItem['originalContent'] = wbContent
