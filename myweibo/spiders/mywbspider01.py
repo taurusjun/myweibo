@@ -32,9 +32,9 @@ class Mywbspider01Spider(scrapy.Spider):
 
     def parseAllPics(self, response):
         weiboitem = response.meta['item']
-        for picURL in response.xpath('//div[@class="c"]//img/@src'):
-            print 1
-        pass
+        picURLs= response.xpath('//div[@class="c"]//img/@src').extract()
+        weiboitem['image_urls'] = picURLs
+        return weiboitem
 
 
     def parseCttContents(self, response):

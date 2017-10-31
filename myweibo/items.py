@@ -19,5 +19,6 @@ class MyweiboItem(scrapy.Item):
     comment = scrapy.Field()
     repost = scrapy.Field()
     tag = scrapy.Field()
+    image_urls = scrapy.Field()
 
     pass

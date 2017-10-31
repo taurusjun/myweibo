@@ -42,13 +42,6 @@ def getCookie(account, password, verifyWords):
     else:
         logger.error("COOKIE_GETWAY Error!")
 
-# def get_cookie_for_weibo_cn(account, password):
-#     cookies = get_cookie_from_login_sina_com_cn()
-#     if not cookies=="":
-#         session = requests.Session()
-#         session.get(url="https://weibo.cn/")
-
-
 def get_cookie_from_login_sina_com_cn(account, password, verifyStr):
     """ 获取一个账号的Cookie """
     loginURL = "https://login.sina.com.cn/sso/login.php?client=ssologin.js(v1.4.19)"
@@ -102,8 +95,10 @@ def get_cookie_from_login_sina_com_cn(account, password, verifyStr):
                             cookie = session.cookies.get_dict()
                         else:
                             logging.error("验证字段失败!")
+                            raise Exception("登录失败：验证字段失败!")
                 else:
                     logging.error("没有重定向的URL!")
+                    raise Exception("登录失败：没有重定向的URL!")
         # cookie = session.cookies.get_dict()
         # return json.dumps(cookie)
         # 返回原始cookie，不做str化处理
@@ -117,7 +112,7 @@ def get_cookie_from_login_sina_com_cn(account, password, verifyStr):
         return cookie
     else:
         logger.warning("Failed!( Reason:%s )" % info["reason"])
-        return ""
+        raise Exception("登录失败！")
 
 
 def get_cookie_from_weibo_cn(account, password):
