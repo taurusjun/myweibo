@@ -21,5 +21,7 @@ class MyweiboItem(scrapy.Item):
     repost = scrapy.Field()
     tag = scrapy.Field()
     image_urls = scrapy.Field()
+    postDate = scrapy.Field()
+    device = scrapy.Field()
 
     pass

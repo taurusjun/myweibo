@@ -85,17 +85,20 @@ def get_cookie_from_login_sina_com_cn(account, password, verifyStr):
                     reLocation1 = a[0]
                     logging.info("开始重定向到URL：%s..." %reLocation1)
                     r4 = session.get(reLocation1)
-                    logging.info("通过重定向URL")
                     wContent = r4.content
-                    verifyIndex = wContent.find(verifyStr)
                     # 用户8741007871
                     if r4.status_code == 200:
+                        logging.info("重定向成功！")
+                        verifyIndex = wContent.find(verifyStr)
                         if verifyIndex > 0:
                             logging.info("验证字段: %s" % verifyStr)
                             cookie = session.cookies.get_dict()
                         else:
                             logging.error("验证字段失败!")
                             raise Exception("登录失败：验证字段失败!")
+                    else:
+                        logging.error("重定向失败! http code：%s; content: %s!" % (r4.status_code, wContent))
+                        raise Exception("重定向失败!")
                 else:
                     logging.error("没有重定向的URL!")
                     raise Exception("登录失败：没有重定向的URL!")

@@ -20,7 +20,16 @@ class Mywbspider01Spider(scrapy.Spider):
     # url_tweets = "http://weibo.cn/%s/profile?filter=1&page=1" % ID
     host='https://weibo.cn'
     # start_urls = ['2849479587?page=1']
-    weibo_ids=['2849479587','1762594520']
+    weibo_ids=[
+        '2849479587'
+        # ,
+        # '1762594520', # 肉包山nyako大魔王
+        # '5621546867' # 米妮大萌萌mini
+        # ,
+        # '6364302384' #苏糯米Ml
+        # ,
+        # '5404464551' # sugar杨晨晨
+    ]
 
     def start_requests(self):
         while self.weibo_ids.__len__():
@@ -101,5 +110,57 @@ class Mywbspider01Spider(scrapy.Spider):
             myweiboItem['comment'] = comment
             myweiboItem['repost'] = repost
             myweiboItem['tag'] = tag
+            m = re.findall(u'(.*)\u6765\u81ea(.*)',tag)
+            deviceStr = m[0][1]
+            if deviceStr:
+                myweiboItem['device'] = deviceStr.strip()
+            dateWStr = m[0][0]
+            if dateWStr:
+                myweiboItem['postDate'] = self.parseDateFromTag(dateWStr)
             yield myweiboItem
 
+    # 日期格式处理，目前只支持4种格式，见代码里面的p1-p4的注释
+    def parseDateFromTag(self, dateWStr):
+        dt = None
+        dateWStr = dateWStr.strip()
+        p1 = u'(\d+)\u5206\u949f\u524d'  # 6分钟前
+        p2 = u'\u4eca\u5929 (\d+):(\d+)'  # 今天 13:59
+        p3 = u'(\d+)\u6708(\d+)\u65e5 (\d+):(\d+)'  # 02月26日 09:11
+        p4 = u'(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)'  # 2016-12-11 07:46:05
+        try:
+            if re.findall(p1, dateWStr).__len__() > 0:
+                now = datetime.datetime.now()
+                min = re.findall(p1, dateWStr)[0][0]
+                dt = now - datetime.timedelta(minutes=min)
+            else:
+                if re.findall(p2, dateWStr).__len__() > 0:
+                    now = datetime.datetime.now()
+                    match = re.findall(p2, dateWStr)
+                    hh = match[0][0]
+                    mm = match[0][1]
+                    dt = now.replace(hour=hh, minute=mm)
+                else:
+                    if re.findall(p3, dateWStr).__len__() > 0:
+                        now = datetime.datetime.now()
+                        match = re.findall(p3, dateWStr)
+                        month = match[0][0]
+                        day = match[0][1]
+                        hh = match[0][2]
+                        mm = match[0][3]
+                        dt = now.replace(month=int(month), day=int(day), hour=int(hh), minute=int(mm))
+                    else:
+                        if re.findall(p4, dateWStr).__len__() > 0:
+                            match = re.findall(p4, dateWStr)
+                            year = match[0][0]
+                            month = match[0][1]
+                            day = match[0][2]
+                            hh = match[0][3]
+                            mm = match[0][4]
+                            ss = match[0][5]
+                            dt = datetime.datetime(year=int(year), month=int(month), day=int(day),
+                                                                        hour=int(hh), minute=int(mm), second=int(ss))
+                        else:
+                            print "无法处理的日期格式: %s" % dateWStr
+        except Exception,e:
+            print "Error!%s"%e
+        return dt

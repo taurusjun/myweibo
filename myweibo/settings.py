@@ -94,8 +94,14 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-IMAGES_STORE='/tmp/sinaimg'
+IMAGES_STORE='/tmp/sinaimg02'
 # 绕过robots策略
 ROBOTSTXT_OBEY = False
 # 限制爬取速度
 DOWNLOAD_DELAY = 1
+
+# 重试机制
+# Retry when proxies fail
+RETRY_TIMES = 5
+# Retry on most error codes since proxies fail for different reasons
+RETRY_HTTP_CODES = [500, 502, 503, 504, 400, 403, 404, 408]
