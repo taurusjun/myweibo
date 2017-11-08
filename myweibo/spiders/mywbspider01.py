@@ -21,7 +21,7 @@ class Mywbspider01Spider(scrapy.Spider):
     host='https://weibo.cn'
     # start_urls = ['2849479587?page=1']
     weibo_ids=[
-        '2849479587'
+        # '2849479587'
         # ,
         # '1762594520', # 肉包山nyako大魔王
         # '5621546867' # 米妮大萌萌mini
@@ -131,14 +131,14 @@ class Mywbspider01Spider(scrapy.Spider):
             if re.findall(p1, dateWStr).__len__() > 0:
                 now = datetime.datetime.now()
                 min = re.findall(p1, dateWStr)[0][0]
-                dt = now - datetime.timedelta(minutes=min)
+                dt = now - datetime.timedelta(minutes=int(min))
             else:
                 if re.findall(p2, dateWStr).__len__() > 0:
                     now = datetime.datetime.now()
                     match = re.findall(p2, dateWStr)
                     hh = match[0][0]
                     mm = match[0][1]
-                    dt = now.replace(hour=hh, minute=mm)
+                    dt = now.replace(hour=int(hh), minute=int(mm))
                 else:
                     if re.findall(p3, dateWStr).__len__() > 0:
                         now = datetime.datetime.now()
