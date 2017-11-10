@@ -16,6 +16,7 @@ class MyweiboItem(scrapy.Item):
     textContent = scrapy.Field()
     originalContent = scrapy.Field()
     allPicsURL = scrapy.Field()
+    dispPicURL = scrapy.Field()
     like = scrapy.Field()
     comment = scrapy.Field()
     repost = scrapy.Field()

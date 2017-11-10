@@ -29,6 +29,8 @@ class Mywbspider01Spider(scrapy.Spider):
         # '6364302384' #苏糯米Ml
         # ,
         # '5404464551' # sugar杨晨晨
+        # ,
+        # '5827456277' # 影杂志yzz
     ]
 
     def start_requests(self):
@@ -50,7 +52,6 @@ class Mywbspider01Spider(scrapy.Spider):
             u'body/div[@class="pa" and @id="pagelist"]/form/div/a[text()="\u4e0b\u9875"]/@href').extract_first()
         if url_next:
             yield Request(url=self.host + url_next, meta={"ID": response.meta["ID"]}, callback=self.parse0)
-        # return self.parseCttContents(response)
 
 
     def parseAllPics(self, response):
@@ -74,6 +75,7 @@ class Mywbspider01Spider(scrapy.Spider):
             # wbContent = sel.xpath('div[descendant::span[@class="ctt"]]').re('<div>(.*?)<\/div>')[0]
             # u'https://weibo.cn/mblog/picAll/Fs3Wtu746?rl=1'
             allPicsURL = sel.xpath('div/a[contains(@href,"picAll")]/@href').extract_first()
+            dispPicURL = sel.xpath('div/a/img/@src').extract()
             # u'赞[267]'
             oLike = re.findall('\[(.*?)\]', sel.xpath('div/a[contains(@href,"attitude")]/text()').extract_first())
             if oLike:
@@ -106,14 +108,20 @@ class Mywbspider01Spider(scrapy.Spider):
             myweiboItem['textContent'] = txtContent
             myweiboItem['originalContent'] = wbContent
             myweiboItem['allPicsURL'] = allPicsURL
+            myweiboItem['dispPicURL'] = dispPicURL
+            if dispPicURL:
+                myweiboItem['image_urls'] = dispPicURL
             myweiboItem['like'] = like
             myweiboItem['comment'] = comment
             myweiboItem['repost'] = repost
             myweiboItem['tag'] = tag
             m = re.findall(u'(.*)\u6765\u81ea(.*)',tag)
-            deviceStr = m[0][1]
-            if deviceStr:
-                myweiboItem['device'] = deviceStr.strip()
+            # 设备
+            if m[0].__len__() > 1:
+                deviceStr = m[0][1]
+                if deviceStr:
+                    myweiboItem['device'] = deviceStr.strip()
+            # 日期
             dateWStr = m[0][0]
             if dateWStr:
                 myweiboItem['postDate'] = self.parseDateFromTag(dateWStr)
